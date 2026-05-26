@@ -18,6 +18,13 @@ interface Props {
   onOpenCopy?: () => void;
 }
 
+const REFERENCE_OPTION_LIMIT = 100;
+
+interface ReferenceOption {
+  value: string;
+  label: string;
+}
+
 function inputType(field: FieldSpec) {
   if (field.kind === 'number') return 'number';
   if (field.kind === 'date') return 'date';
@@ -69,6 +76,68 @@ function resultBase(name: string) {
 
 function isEngineeringRelativeMetric(base: string) {
   return base === 'WT_metric_value' || base === 'variant_metric_value';
+}
+
+function ReferenceCombobox({
+  value,
+  options,
+  readOnly,
+  onChange
+}: {
+  value: string;
+  options: ReferenceOption[];
+  readOnly?: boolean;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const query = value.trim().toLowerCase();
+  const filtered = options.filter((option) => {
+    if (!query) return true;
+    return option.value.toLowerCase().includes(query) || option.label.toLowerCase().includes(query);
+  });
+  const visible = filtered.slice(0, REFERENCE_OPTION_LIMIT);
+  const truncated = filtered.length > visible.length;
+
+  return (
+    <div className="reference-combobox">
+      <input
+        value={value}
+        onFocus={() => { if (!readOnly) setOpen(true); }}
+        onClick={() => { if (!readOnly) setOpen(true); }}
+        onChange={(event) => {
+          onChange(event.target.value);
+          if (!readOnly) setOpen(true);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') setOpen(false);
+          if (event.key === 'ArrowDown' && !readOnly) setOpen(true);
+        }}
+        onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+        readOnly={readOnly}
+      />
+      {open && !readOnly && (
+        <div className="reference-options" role="listbox">
+          {visible.map((option) => (
+            <button
+              type="button"
+              className="reference-option"
+              key={option.value}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              <strong>{option.value}</strong>
+              <span>{option.label}</span>
+            </button>
+          ))}
+          {!visible.length && <div className="reference-option-note">{'\u65e0\u5339\u914d\u5173\u8054\u8bb0\u5f55'}</div>}
+          {truncated && <div className="reference-option-note">{'\u4ec5\u663e\u793a\u524d 100 \u6761\uff0c\u8bf7\u7ee7\u7eed\u8f93\u5165\u7b5b\u9009\u3002'}</div>}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function RowEditor({ spec, row, vocabOptions = {}, referenceOptions = {}, coreOnly = false, issues = [], onSave, onCancel, mode = 'edit', onOpenCopy }: Props) {
@@ -417,11 +486,11 @@ export function RowEditor({ spec, row, vocabOptions = {}, referenceOptions = {},
                   {!(referenceOptions[field.multiReferences.table] ?? []).length && <small>{'\u6682\u65e0\u53ef\u9009\u5316\u5408\u7269'}</small>}
                 </div>
               ) : field.references ? (
-                <input
-                  list={`ref-${field.references.table}-${field.name}`}
+                <ReferenceCombobox
                   value={String(draft[field.name] ?? '')}
-                  onChange={(event) => setField(field.name, event.target.value)}
+                  options={referenceOptions[field.references.table] ?? []}
                   readOnly={isReadonly(field)}
+                  onChange={(value) => setField(field.name, value)}
                 />
               ) : field.vocab ? (
                 renderVocabSelect(field)
@@ -462,11 +531,6 @@ export function RowEditor({ spec, row, vocabOptions = {}, referenceOptions = {},
                   onChange={(event) => setField(field.name, event.target.value)}
                   readOnly={isReadonly(field)}
                 />
-              )}
-              {field.references && (
-                <datalist id={`ref-${field.references.table}-${field.name}`}>
-                  {(referenceOptions[field.references.table] ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </datalist>
               )}
               {field.references && <small>{'\u5173\u8054\uff1a'}{field.references.table}.{field.references.field}</small>}
               {mode === 'edit' && field.name === pk && <small>{'\u7f16\u8f91\u5df2\u6709\u8bb0\u5f55\u65f6\u7f16\u53f7\u4e0d\u53ef\u4fee\u6539\uff0c\u907f\u514d\u5f15\u7528\u6df7\u4e71\u3002'}</small>}
