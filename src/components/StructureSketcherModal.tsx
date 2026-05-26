@@ -1,5 +1,6 @@
 import { ComponentType, useEffect, useMemo, useRef, useState } from 'react';
 import { Ketcher, StructServiceProvider } from 'ketcher-core';
+import Raphael from 'raphael';
 
 interface Props {
   initialSmiles: string;
@@ -104,6 +105,7 @@ export function StructureSketcherModal({ initialSmiles, onApply, onClose }: Prop
       if (moduleName === 'events') return { EventEmitter: BrowserEventEmitter, default: BrowserEventEmitter };
       if (moduleName === 'process') return globalScope.process;
       if (moduleName === 'buffer') return { Buffer: globalScope.Buffer };
+      if (moduleName === 'raphael') return Raphael;
       throw new Error(`Ketcher browser shim does not support require("${moduleName}")`);
     };
     Promise.all([
