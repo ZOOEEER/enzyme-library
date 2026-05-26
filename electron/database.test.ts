@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { allData, deleteRow, listRows, openDatabase, upsertRow } from './database';
+import Database from 'better-sqlite3';
+import { allData, defaultDatabasePath, deleteRow, listRows, openDatabase, readDatabaseSettings, settingsPath, upsertRow, validateDatabaseFile, writeDatabaseSettings } from './database';
 
 const tempDirs: string[] = [];
 const sqliteNativeAvailable = (() => {
@@ -38,6 +39,38 @@ describeIfSqliteNativeAvailable('database persistence and row operations', () =>
       expect(fs.existsSync(store.path)).toBe(true);
     } finally {
       store.db.close();
+    }
+  });
+
+  it('opens the configured database path from settings and initializes missing files', () => {
+    const userData = tempUserData();
+    const customPath = path.join(userData, 'projects', 'custom.sqlite');
+    writeDatabaseSettings(userData, { databasePath: customPath });
+    expect(readDatabaseSettings(userData).databasePath).toBe(customPath);
+    expect(settingsPath(userData)).toBe(path.join(userData, 'settings.json'));
+    const store = openDatabase(userData);
+    try {
+      expect(store.path).toBe(customPath);
+      expect(fs.existsSync(customPath)).toBe(true);
+      expect(defaultDatabasePath(userData)).toBe(path.join(userData, 'enzyme-library.sqlite'));
+    } finally {
+      store.db.close();
+    }
+  });
+
+  it('rejects existing SQLite files that do not look like Enzyme Library databases', () => {
+    const userData = tempUserData();
+    const foreignPath = path.join(userData, 'foreign.sqlite');
+    const foreign = new Database(foreignPath);
+    foreign.prepare('CREATE TABLE other_app (id TEXT PRIMARY KEY)').run();
+    foreign.close();
+    expect(validateDatabaseFile(foreignPath).ok).toBe(false);
+    const reopened = new Database(foreignPath, { readonly: true });
+    try {
+      const tables = reopened.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{ name: string }>;
+      expect(tables.map((table) => table.name)).toEqual(['other_app']);
+    } finally {
+      reopened.close();
     }
   });
 

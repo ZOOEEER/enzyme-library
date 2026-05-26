@@ -4,7 +4,7 @@ import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Menu } from 'elect
 import isDev from 'electron-is-dev';
 import { TABLES, TableName } from '../app/shared/schema';
 import { validateDatabase } from '../app/shared/validation';
-import { addVocabValue, allData, deleteRow, deleteVocabValue, listRows, listVocab, nextId, openDatabase, replaceAll, upsertRow } from './database';
+import { addVocabValue, allData, deleteRow, deleteVocabValue, listRows, listVocab, nextId, openDatabase, replaceAll, upsertRow, validateDatabaseFile, writeDatabaseSettings } from './database';
 import { readWorkbook, writeWorkbook } from './excel';
 import { readTableCsv, writeAllCsv, writeCsvTemplate, writeCurrentCsv } from './csv';
 import { describeSmiles } from './chemistry';
@@ -202,6 +202,42 @@ ipcMain.handle('db:restore', async () => {
   if (result.canceled || !result.filePaths[0]) return { canceled: true };
   store.db.close();
   fs.copyFileSync(result.filePaths[0], store.path);
-  store = openDatabase(app.getPath('userData'));
+  store = openDatabase(app.getPath('userData'), store.path);
   return { canceled: false, filePath: result.filePaths[0] };
+});
+
+ipcMain.handle('db:select-file', async () => {
+  const confirmation = await dialog.showMessageBox(mainWindow!, {
+    type: 'warning',
+    buttons: ['继续切换', '取消'],
+    defaultId: 1,
+    cancelId: 1,
+    title: '切换数据库文件',
+    message: '切换数据库文件不会删除当前数据库。',
+    detail: '如需保存当前状态，请先点击“备份数据库”。切换后页面会刷新为新数据库内容。'
+  });
+  if (confirmation.response !== 0) return { canceled: true };
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    title: '选择或新建 SQLite 数据库文件',
+    defaultPath: store.path,
+    filters: [{ name: 'SQLite', extensions: ['sqlite', 'db'] }],
+    properties: ['openFile', 'promptToCreate']
+  });
+  if (result.canceled || !result.filePaths[0]) return { canceled: true };
+  const selectedPath = result.filePaths[0];
+  const validation = validateDatabaseFile(selectedPath);
+  if (!validation.ok) return { canceled: false, error: validation.error };
+  const previous = store;
+  let nextStore: ReturnType<typeof openDatabase> | undefined;
+  try {
+    previous.db.close();
+    nextStore = openDatabase(app.getPath('userData'), selectedPath);
+    writeDatabaseSettings(app.getPath('userData'), { databasePath: selectedPath });
+    store = nextStore;
+    return { canceled: false, filePath: store.path };
+  } catch (error) {
+    nextStore?.db.close();
+    store = openDatabase(app.getPath('userData'), previous.path);
+    return { canceled: false, error: error instanceof Error ? error.message : String(error) };
+  }
 });

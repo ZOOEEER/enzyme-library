@@ -25,7 +25,8 @@ const api = {
   exportAllCsv: () => ipcRenderer.invoke('csv:export-all'),
   importSequenceText: () => ipcRenderer.invoke('sequence:import') as Promise<{ canceled: boolean; text?: string; filePath?: string }>,
   backupDatabase: () => ipcRenderer.invoke('db:backup'),
-  restoreDatabase: () => ipcRenderer.invoke('db:restore')
+  restoreDatabase: () => ipcRenderer.invoke('db:restore'),
+  selectDatabaseFile: () => ipcRenderer.invoke('db:select-file') as Promise<{ canceled: boolean; filePath?: string; error?: string }>
 };
 
 contextBridge.exposeInMainWorld('enzymeApi', api);

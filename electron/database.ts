@@ -11,6 +11,14 @@ export interface AppDatabase {
   db: Database.Database;
 }
 
+export interface DatabaseSettings {
+  databasePath?: string;
+}
+
+const DEFAULT_DB_NAME = 'enzyme-library.sqlite';
+const LEGACY_DB_NAME = 'ired-enzyme-library.sqlite';
+const SETTINGS_NAME = 'settings.json';
+
 function sqlType(kind?: string): string {
   return kind === 'number' ? 'REAL' : 'TEXT';
 }
@@ -19,11 +27,61 @@ function quote(name: string): string {
   return `"${name.replace(/"/g, '""')}"`;
 }
 
-export function openDatabase(userDataPath: string): AppDatabase {
+export function defaultDatabasePath(userDataPath: string): string {
+  return path.join(userDataPath, DEFAULT_DB_NAME);
+}
+
+export function settingsPath(userDataPath: string): string {
+  return path.join(userDataPath, SETTINGS_NAME);
+}
+
+export function readDatabaseSettings(userDataPath: string): DatabaseSettings {
+  const filePath = settingsPath(userDataPath);
+  if (!fs.existsSync(filePath)) return {};
+  try {
+    const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as DatabaseSettings;
+    return typeof parsed.databasePath === 'string' ? { databasePath: parsed.databasePath } : {};
+  } catch {
+    return {};
+  }
+}
+
+export function writeDatabaseSettings(userDataPath: string, settings: DatabaseSettings): void {
   fs.mkdirSync(userDataPath, { recursive: true });
-  const dbPath = path.join(userDataPath, 'enzyme-library.sqlite');
-  const legacyDbPath = path.join(userDataPath, 'ired-enzyme-library.sqlite');
-  if (!fs.existsSync(dbPath) && fs.existsSync(legacyDbPath)) fs.copyFileSync(legacyDbPath, dbPath);
+  fs.writeFileSync(settingsPath(userDataPath), JSON.stringify(settings, null, 2), 'utf8');
+}
+
+function configuredDatabasePath(userDataPath: string): string {
+  return readDatabaseSettings(userDataPath).databasePath || defaultDatabasePath(userDataPath);
+}
+
+export function validateDatabaseFile(filePath: string): { ok: boolean; error?: string } {
+  if (!fs.existsSync(filePath)) return { ok: true };
+  if (fs.statSync(filePath).size === 0) return { ok: true };
+  let db: Database.Database | undefined;
+  try {
+    db = new Database(filePath, { readonly: true, fileMustExist: true });
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{ name: string }>;
+    const names = new Set(tables.map((table) => table.name));
+    const coreTables = ['References', 'WT_Enzymes', 'Chemicals', 'Reactions', 'Conditions', 'Enzyme_Substrate_Relations', 'Engineering'];
+    if (names.has('__meta') || coreTables.some((name) => names.has(name))) return { ok: true };
+    return { ok: false, error: '该文件不是 Enzyme Library 数据库，未做任何修改。' };
+  } catch {
+    return { ok: false, error: '无法打开该 SQLite 文件，未做任何修改。' };
+  } finally {
+    db?.close();
+  }
+}
+
+export function openDatabase(userDataPath: string, databasePath?: string): AppDatabase {
+  fs.mkdirSync(userDataPath, { recursive: true });
+  const dbPath = databasePath || configuredDatabasePath(userDataPath);
+  fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+  const defaultPath = defaultDatabasePath(userDataPath);
+  const legacyDbPath = path.join(userDataPath, LEGACY_DB_NAME);
+  if (dbPath === defaultPath && !fs.existsSync(dbPath) && fs.existsSync(legacyDbPath)) fs.copyFileSync(legacyDbPath, dbPath);
+  const validation = validateDatabaseFile(dbPath);
+  if (!validation.ok) throw new Error(validation.error);
   const db = new Database(dbPath);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');

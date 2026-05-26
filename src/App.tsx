@@ -307,8 +307,21 @@ export default function App() {
     const result = await window.enzymeApi.restoreDatabase();
     if (!result.canceled) {
       setStatus(`已恢复：${result.filePath}`);
+      setDbPath(await window.enzymeApi.dbPath());
       await refresh(activeTable);
     }
+  }
+
+  async function selectDatabaseFile() {
+    const result = await window.enzymeApi.selectDatabaseFile();
+    if (result.canceled) return;
+    if (result.error) {
+      setStatus(`数据库切换失败：${result.error}`);
+      return;
+    }
+    setDbPath(result.filePath ?? await window.enzymeApi.dbPath());
+    setStatus(`已切换数据库：${result.filePath}`);
+    await refresh(activeTable);
   }
 
   async function addVocab(vocabName: string, value: string) {
@@ -373,12 +386,14 @@ export default function App() {
           <div className="settings-actions">
             <button onClick={backup}>{'\u5907\u4efd\u6570\u636e\u5e93'}</button>
             <button onClick={restore}>{'\u6062\u590d\u6570\u636e\u5e93'}</button>
+            <button onClick={selectDatabaseFile}>{'\u5207\u6362\u6570\u636e\u5e93\u6587\u4ef6'}</button>
           </div>
         </div>
         <div className="panel">
           <h3>{'\u6570\u636e\u4ea4\u6362\u8bf4\u660e'}</h3>
           <p>{'SQLite \u662f\u5e94\u7528\u5185\u6743\u5a01\u6570\u636e\u6e90\uff1bCSV \u7528\u4e8e\u6a21\u677f\u4e0b\u8f7d\u3001\u6279\u91cf\u7f16\u8f91\u548c\u534f\u4f5c\u4ea4\u6362\u3002'}</p>
           <p>{'\u5f53\u524d\u8868 CSV \u5bfc\u5165\u6309\u4e3b\u952e\u65b0\u589e/\u66f4\u65b0\uff0c\u4e0d\u4f1a\u6e05\u7a7a\u6574\u5f20\u8868\u3002'}</p>
+          <p>{'\u5907\u4efd\u662f\u590d\u5236\u5f53\u524d\u6570\u636e\u5e93\uff1b\u6062\u590d\u662f\u7528\u5916\u90e8 SQLite \u6587\u4ef6\u8986\u76d6\u5f53\u524d\u5de5\u4f5c\u5e93\uff1b\u5207\u6362\u662f\u6539\u7528\u53e6\u4e00\u4e2a SQLite \u6587\u4ef6\uff0c\u4e0d\u590d\u5236\u4e5f\u4e0d\u8986\u76d6\u539f\u5e93\u3002'}</p>
         </div>
       </section>
     );
