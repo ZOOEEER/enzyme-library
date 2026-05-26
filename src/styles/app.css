@@ -888,6 +888,16 @@ small,
   justify-items: center;
 }
 
+td.reaction-compound-column {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.reaction-compound-column .reaction-compound-cell {
+  margin: 0 auto;
+  width: 100%;
+}
+
 .modal-backdrop {
   align-items: center;
   background: rgba(15, 23, 42, 0.45);

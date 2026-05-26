@@ -199,7 +199,7 @@ export function DataTable({ spec, rows, allRows = {}, onEdit, onDelete }: Props)
   const pk = primaryField(spec.name);
   const wtPreviewFieldNames = ['enzyme_id', 'enzyme_name', 'uniprot_id', 'genbank_id', 'ncbi_accession', 'pdb_id', 'sequence_aa'];
   const chemicalPreviewFieldNames = ['compound_id', 'compound_name', 'compound_role_default', 'formula', 'structure_preview', 'canonical_smiles', 'inchikey'];
-  const reactionPreviewFieldNames = ['reaction_id', 'reaction_name', 'reaction_direction', 'main_substrate_id', 'main_product_id', 'reference_id'];
+  const reactionPreviewFieldNames = ['reaction_id', 'reaction_name', 'main_substrate_id', 'main_product_id', 'reference_id'];
   const conditionPreviewFieldNames = ['condition_id', 'condition_name', 'enzyme_form', 'enzyme_loading', 'substrate_conc', 'buffer', 'pH', 'temperature', 'time', 'reaction_scale'];
   const conditionMetricBases = ['enzyme_loading', 'substrate_conc', 'cofactor_conc', 'cosolvent_amount', 'pH', 'temperature', 'time', 'reaction_scale'];
   const baseDefaultFieldNames: Partial<Record<string, string[]>> = {
@@ -375,11 +375,17 @@ export function DataTable({ spec, rows, allRows = {}, onEdit, onDelete }: Props)
         <tbody>
           {rows.map((row, index) => (
             <tr key={String(row[pk] ?? index)}>
-              {previewFields.map((field) => (
-                <td key={isListColumn(field) ? field.id : field.name}>
+              {previewFields.map((field) => {
+                const isReactionCompoundColumn = spec.name === 'Reactions' && ['main_substrate_id', 'main_product_id'].includes(field.name);
+                return (
+                <td
+                  key={isListColumn(field) ? field.id : field.name}
+                  className={isReactionCompoundColumn ? 'reaction-compound-column' : undefined}
+                >
                   {renderColumn(row, field)}
                 </td>
-              ))}
+                );
+              })}
               <td className="action-cell">
                 <div className="row-actions">
                   <button onClick={() => onEdit({ ...row })}>编辑</button>
