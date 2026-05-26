@@ -1,0 +1,45 @@
+﻿id,table_name,field_name,default_unit,quantity_type,notes
+1,Chemicals,exact_mass_Da,Da,molecular mass,单同位素精确质量；若为盐/水合物，应在 notes 说明。
+2,WT_Enzymes,sequence_length_aa,aa,sequence length,氨基酸残基数；未知可留空。
+3,Conditions,enzyme_loading_value,see original_activity_unit / notes,enzyme amount/loading,酶投加量单位依文献不同，必须在 enzyme_loading_unit 填写；常见 mg/mL、µM、gCDW/L、U/mL。
+4,Conditions,substrate_conc_mM,mM,concentration,所有可换算底物浓度默认统一为 mM。
+5,Conditions,amine_partner_conc_mM,mM,concentration,胺供体浓度；氨/铵盐也按 mM 记录。
+6,Conditions,carbonyl_precursor_conc_mM,mM,concentration,还原胺化中的羰基前体浓度。
+7,Conditions,cofactor_conc_mM,mM,concentration,NADPH/NADH 初始浓度。
+8,Conditions,pH,unitless,acidity,pH 无单位；缓冲液种类和浓度在 buffer/notes 说明。
+9,Conditions,temperature_C,°C,temperature,实验温度默认摄氏度。
+10,Conditions,time_h,h,time,反应时间默认小时。
+11,Conditions,cosolvent_percent,% v/v,fraction,助溶剂体积分数，表头 percent 列只填数字。
+12,Conditions,reaction_scale_value,see reaction_scale_unit,reaction scale,体积、摩尔量或质量规模取决于文献；必须配套填写 reaction_scale_unit。
+13,Enzyme_Substrate_Relations,conversion_percent,%,conversion,只填数值，不带百分号。
+14,Enzyme_Substrate_Relations,yield_percent,%,yield,只填数值，不带百分号。
+15,Enzyme_Substrate_Relations,product_titer_g_L,g/L,titer,产物浓度质量单位。
+16,Enzyme_Substrate_Relations,product_titer_mM,mM,titer,产物浓度摩尔单位。
+17,Enzyme_Substrate_Relations,specific_activity_U_mg,U/mg,specific activity,默认 U/mg protein；若文献为 U/mL、µmol/min/mg 等，换算后填此列，并在 original_activity_unit/notes 保留原文单位。
+18,Enzyme_Substrate_Relations,kcat_s_1,s^-1,turnover number,动力学参数 kcat。
+19,Enzyme_Substrate_Relations,Km_mM,mM,Michaelis constant,动力学参数 Km。
+20,Enzyme_Substrate_Relations,kcat_Km_M_1_s_1,M^-1 s^-1,catalytic efficiency,动力学参数 kcat/Km；注意 Km 若以 mM 记录，计算时需换算为 M。
+21,Enzyme_Substrate_Relations,initial_rate_mM_min,mM/min,initial rate,初速默认 mM/min；若用 µmol/min/mg 等，建议换算或在 notes 保留。
+22,Enzyme_Substrate_Relations,TTN_mol_mol,mol product/mol enzyme or catalyst,total turnover number,无量纲比值；建议注明分母是酶、辅因子还是催化剂。
+23,Enzyme_Substrate_Relations,TOF_h_1,h^-1,turnover frequency,单位时间转化频率。
+24,Enzyme_Substrate_Relations,ee_percent,%,enantioselectivity,只填数值，不带百分号。
+25,Enzyme_Substrate_Relations,de_percent,%,diastereoselectivity,只填数值，不带百分号。
+26,Engineering,activity_value_standard_unit,depends on activity_metric,activity value,非结构化/自定义指标值；优先使用 conversion_percent、kcat_s_1 等结构化列。
+27,Engineering,conversion_percent,%,conversion,突变体结果；只填数值。
+28,Engineering,ee_percent,%,enantioselectivity,突变体结果；只填数值。
+29,Engineering,de_percent,%,diastereoselectivity,突变体结果；只填数值。
+30,Engineering,yield_percent,%,yield,突变体结果；只填数值。
+31,Engineering,kcat_s_1,s^-1,turnover number,突变体动力学参数。
+32,Engineering,Km_mM,mM,Michaelis constant,突变体动力学参数。
+33,Engineering,kcat_Km_M_1_s_1,M^-1 s^-1,catalytic efficiency,突变体动力学参数。
+34,Engineering,Tm_C,°C,melting temperature,蛋白熔解温度。
+35,Engineering,half_life_h,h,half-life,热稳定性或失活半衰期，默认小时。
+36,Engineering,expression_value,see original_expression_unit,expression/soluble expression,表达量单位文献差异大，必须配套填写 original_expression_unit。
+37,Engineering,WT_metric_value_standard_unit,depends on activity_metric,baseline value,与 variant_metric_value_standard_unit 配对，用于计算 fold_change_vs_WT。
+38,Engineering,variant_metric_value_standard_unit,depends on activity_metric,variant value,与 WT_metric_value_standard_unit 同指标、同条件。
+39,Engineering,fold_change_vs_WT,ratio,fold change,公式：variant/WT；仅同条件、同指标可比较。
+40,Reactions,cofactor_default,compound_id or controlled vocabulary,reference,Prefer preset Chemicals IDs COF-0001/COF-0002 for NADPH/NADH when possible.
+41,Conditions,cofactor,compound_id or name,reference,Use preset Chemicals IDs for NADPH/NADH where possible; concentration remains cofactor_conc_mM.
+42,Conditions,cofactor_regeneration,controlled vocabulary,method,"Use GDH/glucose, FDH/formate, IPDH/isopropanol, none, or other; components can reference preset COF IDs."
+43,Conditions,regeneration_components,compound_id(s) / text,reference,"Prefer COF-0010 glucose, COF-0011 formate, COF-0012 isopropanol for common systems."
+44,Conditions,cosolvent,compound_id or name,reference,"Prefer COS-0001 DMSO, COS-0002 MeOH, COS-0003 i-PrOH for common cosolvents."

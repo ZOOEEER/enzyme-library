@@ -1,0 +1,2 @@
+﻿reaction_id,reaction_name,reaction_direction,main_substrate_id,main_product_id,secondary_substrate_ids,secondary_product_ids,co_substrate_ids,co_product_ids,reaction_equation_auto,reaction_equation_text,reference_id,curator,curation_date,data_status,notes
+RXN-0001,测试反应,,SUB-0001,PRO-0001,CMP-0001,"CMP-0003,CMP-0002",,,SUB-0001 + CMP-0001 -> PRO-0001 + CMP-0003 + CMP-0002,,,,,,

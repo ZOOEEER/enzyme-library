@@ -1,0 +1,2 @@
+﻿condition_id,condition_name,enzyme_form,enzyme_loading_value,enzyme_loading_unit,substrate_conc_mM,amine_partner_conc_mM,carbonyl_precursor_conc_mM,cofactor,cofactor_conc_mM,cofactor_regeneration,regeneration_components,buffer,pH,temperature_C,time_h,cosolvent,cosolvent_percent,salt_additives,metal_ions,oxygen_condition,reaction_scale_value,reaction_scale_unit,quench_method,workup,curator,curation_date,data_status,notes
+COND-0001,测试实验条件-1,,,,,,,,,,,,,,,,,,,,,,,,,,,

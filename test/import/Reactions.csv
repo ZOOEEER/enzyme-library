@@ -1,0 +1,2 @@
+﻿reaction_id,reaction_name,reaction_direction,main_substrate_id,main_product_id,secondary_substrate_id,secondary_product_id,reaction_equation_text,reference_id,curator,curation_date,data_status,notes
+R-0001,r-1,forward,CMP-0001,CMP-0001,,,,,,2026-05-19,raw,

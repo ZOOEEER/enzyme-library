@@ -1,0 +1,3 @@
+﻿enzyme_id,enzyme_name,alias,enzyme_type,enzyme_family,organism,tax_id,strain_or_isolate,organism_source_type,uniprot_id,genbank_id,ncbi_accession,pdb_id,sequence_aa,signal_peptide_removed,construct_tag,expression_host,protein_form,cofactor_preference,reported_reaction_scope,reported_stereo_scope,activity_annotation_level,activity_annotation_basis,annotation_reference_id,reference_id,curator,curation_date,data_status,notes
+ENZ-0001,sfdz,,,,,,,,,,,,afa,,,,,,,,,,,,,,,
+ENZ-0002,e-2,,,,,,,,,,,,BBBB,,,,,,,,,,,,,,,

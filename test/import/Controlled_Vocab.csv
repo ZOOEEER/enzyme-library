@@ -1,0 +1,8 @@
+﻿id,evidence_level,activity_unit,effect_type,cofactor,cofactor_regeneration,stereo_descriptor_type,organism_source_type,assay_type,data_status,source_type,compound_role,enzyme_form,reaction_direction,yes_no_unknown,activity_annotation_level
+1,purified enzyme,U/mg,activity increase,NADPH,GDH/glucose,R/S,bacterium,HPLC,raw,实验,substrate,purified enzyme,forward,yes,qualitative
+2,whole cell,,activity decrease,NADH,FDH/formate,E/Z,fungus,GC,curated,文献,product,whole cell,reverse,no,quantitative summary
+3,cell lysate,,enantioselectivity increase,NAD(P)H,IPDH/isopropanol,cis/trans,plant,LC-MS,checked,专利,amine partner,cell lysate,equilibrium,unknown,conflicting
+4,immobilized enzyme,,enantioselectivity switch,not specified,none,racemic,metagenome,NADPH depletion,conflict,数据库,carbonyl precursor,immobilized enzyme,not specified,not specified,unknown
+5,not specified,,thermostability increase,,,achiral,synthetic construct,chiral HPLC,excluded,,imine intermediate,not specified,,,
+6,,,expression increase,,,other,unknown,NMR,,,cofactor,,,,
+7,,,,,,,,,,,cosolvent,,,,

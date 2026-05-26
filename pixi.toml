@@ -1,0 +1,17 @@
+[workspace]
+name = "enzyme-library-ocsr"
+channels = ["conda-forge"]
+platforms = ["win-64"]
+
+[environments]
+ocsr = ["ocsr"]
+
+[feature.ocsr.dependencies]
+python = ">=3.10,<3.12"
+pip = "*"
+
+[feature.ocsr.tasks]
+ocsr-install = "python -m pip install decimer"
+ocsr-check = "python app/backend/ocsr/decimer_check.py"
+ocsr-predict = "python app/backend/ocsr/decimer_predict.py"
+ocsr-python = "python"

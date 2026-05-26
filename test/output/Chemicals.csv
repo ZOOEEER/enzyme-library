@@ -1,0 +1,10 @@
+﻿compound_id,compound_name,alias,compound_role_default,compound_class,formula,canonical_smiles,inchikey,stereo_descriptor,stereo_descriptor_type,chirality_notes,cas_number,pubchem_cid,reference_id,curator,curation_date,data_status,notes
+CMP-0001,丙烷,,cosolvent,,C4H10,CCCC,IJDNQMDRQITEOD-UHFFFAOYSA-N,,,,,,,,,,
+CMP-0002,test-2,,cofactor,,C5H12,CCCCC,OFBQJSOFQDEBGM-UHFFFAOYSA-N,,,,,,,,,,
+CMP-0003,丙烷-conflict,,,,C3H8O,CCCO,BDERNNFJNOPAEC-UHFFFAOYSA-N,,,,,,,,,,
+CMP-0004,甲醇,,substrate,,CH4O,CO,OKKJLVBELUTLKV-UHFFFAOYSA-N,,R/S,,,,,,,,
+SUB-0001,乙醇,,substrate,,C2H6O,CCO,LFQSCWFLJHTTHZ-UHFFFAOYSA-N,,,,,,,,,,
+SOL-0001,水,,solvent,,H2O,O,XLYOFNOQVPJJNP-UHFFFAOYSA-N,,,,,,,,,,
+PRO-0001,乙醛,,product,,C2H4O,CC=O,IKHGUXGNUITLKF-UHFFFAOYSA-N,,,,,,,,,,
+CMP-0005,Fe2+,,,,Fe,[Fe+2],CWYNVVGOOAEACU-UHFFFAOYSA-N,,,,,,,,,,
+CMP-0006,12,,,,C8H10O,[C@H](O)(C)C1=CC=CC=C1,WAPNOHKVXSQRPX-ZETCQYMHSA-N,,,,,,,,,,
