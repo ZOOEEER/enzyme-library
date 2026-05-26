@@ -41,9 +41,54 @@ export function StructureSketcherModal({ initialSmiles, onApply, onClose }: Prop
       pid?: number;
       noDeprecation?: boolean;
     };
+    class BrowserEventEmitter {
+      private listeners = new Map<string, Array<(...args: unknown[]) => void>>();
+
+      on(event: string, listener: (...args: unknown[]) => void) {
+        const next = this.listeners.get(event) ?? [];
+        next.push(listener);
+        this.listeners.set(event, next);
+        return this;
+      }
+
+      addListener(event: string, listener: (...args: unknown[]) => void) {
+        return this.on(event, listener);
+      }
+
+      once(event: string, listener: (...args: unknown[]) => void) {
+        const wrapped = (...args: unknown[]) => {
+          this.removeListener(event, wrapped);
+          listener(...args);
+        };
+        return this.on(event, wrapped);
+      }
+
+      removeListener(event: string, listener: (...args: unknown[]) => void) {
+        const next = (this.listeners.get(event) ?? []).filter((candidate) => candidate !== listener);
+        this.listeners.set(event, next);
+        return this;
+      }
+
+      off(event: string, listener: (...args: unknown[]) => void) {
+        return this.removeListener(event, listener);
+      }
+
+      removeAllListeners(event?: string) {
+        if (event) this.listeners.delete(event);
+        else this.listeners.clear();
+        return this;
+      }
+
+      emit(event: string, ...args: unknown[]) {
+        for (const listener of this.listeners.get(event) ?? []) listener(...args);
+        return (this.listeners.get(event) ?? []).length > 0;
+      }
+    }
     const globalScope = globalThis as unknown as {
       process?: BrowserProcessShim;
       global?: typeof globalThis;
+      Buffer?: unknown;
+      require?: (moduleName: string) => unknown;
     };
     globalScope.global ??= globalThis;
     const processShim = globalScope.process as BrowserProcessShim | undefined;
@@ -55,6 +100,12 @@ export function StructureSketcherModal({ initialSmiles, onApply, onClose }: Prop
     };
     globalScope.process.env ??= {};
     globalScope.process.nextTick ??= (callback, ...args) => queueMicrotask(() => callback(...args));
+    globalScope.require ??= (moduleName: string) => {
+      if (moduleName === 'events') return { EventEmitter: BrowserEventEmitter, default: BrowserEventEmitter };
+      if (moduleName === 'process') return globalScope.process;
+      if (moduleName === 'buffer') return { Buffer: globalScope.Buffer };
+      throw new Error(`Ketcher browser shim does not support require("${moduleName}")`);
+    };
     Promise.all([
       import('ketcher-react'),
       import('ketcher-standalone'),
@@ -153,7 +204,7 @@ export function StructureSketcherModal({ initialSmiles, onApply, onClose }: Prop
           <div className="ketcher-host">
             {Editor && structServiceProvider ? (
               <Editor
-                staticResourcesUrl="/"
+                staticResourcesUrl="./"
                 structServiceProvider={structServiceProvider}
                 onInit={handleInit}
                 errorHandler={(error) => setMessage(String(error))}
